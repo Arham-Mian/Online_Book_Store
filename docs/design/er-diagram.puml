@@ -60,3 +60,4 @@ carts ||--o{ cart_items : has
 books ||--o{ cart_items : referenced
 
 @enduml
+A
