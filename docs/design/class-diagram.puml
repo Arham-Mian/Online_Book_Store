@@ -1,0 +1,54 @@
+@startuml
+' ---------- Class Diagram for Online Bookstore ----------
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam dpi 150
+
+title Online Bookstore - Class Diagram
+
+class Book {
+  +long id
+  +String title
+  +String author
+  +String isbn
+  +BigDecimal price
+  +int stock
+}
+
+class User {
+  +long id
+  +String username
+  +String email
+  +String passwordHash
+}
+
+class Cart {
+  -Map<Book, Integer> items
+  +addBook(Book, int)
+  +removeBook(Book)
+  +calculateTotal(): BigDecimal
+}
+
+class Order {
+  +long id
+  +long userId
+  +LocalDateTime createdAt
+  +BigDecimal total
+}
+
+class OrderItem {
+  +long id
+  +long orderId
+  +long bookId
+  +int quantity
+  +BigDecimal price
+}
+
+' Relationships
+User "1" -- "0..1" Cart : owns >
+User "1" -- "0..*" Order : places >
+Order "1" -- "1..*" OrderItem : contains >
+OrderItem "*" -- "1" Book : references >
+Cart "1" o-- "*" Book : has >
+
+@enduml

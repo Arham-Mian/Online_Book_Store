@@ -1,0 +1,62 @@
+@startuml
+' ---------- ER Diagram for MySQL (Online Bookstore) ----------
+hide circle
+skinparam shadowing false
+skinparam dpi 150
+
+title Online Bookstore - ER Diagram
+
+entity books {
+  * id : BIGINT <<PK>>
+  --
+  title : VARCHAR(255)
+  author : VARCHAR(255)
+  isbn : VARCHAR(20)
+  price : DECIMAL(10,2)
+  stock : INT
+}
+
+entity users {
+  * id : BIGINT <<PK>>
+  --
+  username : VARCHAR(100) <<UNIQUE>>
+  email : VARCHAR(255)
+  password_hash : VARCHAR(255)
+}
+
+entity orders {
+  * id : BIGINT <<PK>>
+  user_id : BIGINT <<FK users.id>>
+  created_at : DATETIME
+  total : DECIMAL(10,2)
+}
+
+entity order_items {
+  * id : BIGINT <<PK>>
+  order_id : BIGINT <<FK orders.id>>
+  book_id : BIGINT <<FK books.id>>
+  quantity : INT
+  price : DECIMAL(10,2)
+}
+
+entity carts {
+  * id : BIGINT <<PK>>
+  user_id : BIGINT <<FK users.id>>
+}
+
+entity cart_items {
+  * id : BIGINT <<PK>>
+  cart_id : BIGINT <<FK carts.id>>
+  book_id : BIGINT <<FK books.id>>
+  quantity : INT
+}
+
+' Relationships
+users ||--o{ orders : places
+orders ||--o{ order_items : contains
+books ||--o{ order_items : referenced
+users ||--o{ carts : owns
+carts ||--o{ cart_items : has
+books ||--o{ cart_items : referenced
+
+@enduml

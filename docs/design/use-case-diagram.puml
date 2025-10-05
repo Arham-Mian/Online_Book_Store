@@ -1,0 +1,36 @@
+@startuml
+' ---------- Use Case Diagram for Online Bookstore ----------
+left to right direction
+skinparam shadowing false
+skinparam dpi 150
+
+title Online Bookstore - Use Case Diagram
+
+actor "Guest" as Guest
+actor "Registered User" as User
+
+rectangle "Online Bookstore System" {
+  usecase "Search Books" as UC_Search
+  usecase "View Book Details" as UC_Details
+  usecase "Add to Cart" as UC_Add
+  usecase "View Cart" as UC_ViewCart
+  usecase "Checkout" as UC_Checkout
+  usecase "View Orders" as UC_ViewOrders
+  usecase "View Recommendations" as UC_Recommend
+  usecase "View Recently Browsed" as UC_Recent
+}
+
+' Relationships
+Guest --> UC_Search
+Guest --> UC_Details
+
+User --> UC_Search
+User --> UC_Details
+User --> UC_Add
+User --> UC_ViewCart
+User --> UC_Checkout
+User --> UC_ViewOrders
+User --> UC_Recommend
+User --> UC_Recent
+
+@enduml
