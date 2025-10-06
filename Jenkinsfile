@@ -1,70 +1,63 @@
 pipeline {
-  agent any
+    agent any
 
-  tools {
-    jdk   'JDK 21'        // <-- EXACT name from Manage Jenkins -> Tools
-    maven 'Maven 3.9.11'  // <-- EXACT name from Manage Jenkins -> Tools
-  }
-
-  options {
-    timestamps()
-  }
-
-  stages {
-    stage('Checkout') {
-      steps {
-        echo 'Cloning repository...'
-        git branch: 'main', url: 'https://github.com/<YOUR_USERNAME>/Online_Book_Store.git'
-      }
+    tools {
+        // yahan EXACT naam use karo jo Manage Jenkins -> Global Tool Configuration me set kiya tha
+        jdk   'JDK 21'
+        maven 'Maven 3.9.11'
     }
 
-    stage('Build') {
-      steps {
-        echo 'Building project (compile)...'
-        bat 'mvn -B -U clean compile'
-      }
-    }
+    options { timestamps() }
 
-    stage('Test') {
-      steps {
-        echo 'Running tests...'
-        bat 'mvn -B -U test'
-        echo '== Listing target directory =='
-        bat 'dir target'
-        echo '== Listing surefire-reports (if any) =='
-        bat 'if exist target\\surefire-reports (dir target\\surefire-reports) else (echo No surefire-reports folder)'
-        echo '== Show cucumber-junit.xml (if created) =='
-        bat 'if exist target\\cucumber-junit.xml (type target\\cucumber-junit.xml) else (echo No cucumber-junit.xml)'
-      }
-      post {
-        always {
-          // publish both surefire XMLs and cucumber xml; allowEmptyResults true while debugging
-          junit testResults: 'target/surefire-reports/*.xml, target/cucumber-junit.xml', allowEmptyResults: true
+    stages {
+        stage('Checkout') {
+            steps {
+                echo 'Cloning repository...'
+                git branch: 'main', url: 'https://github.com/Arham-Mian/Online_Book_Store.git'
+            }
         }
-      }
+
+        stage('Build') {
+            steps {
+                echo 'Compile'
+                bat '%MAVEN_HOME%\\bin\\mvn -B -U clean compile'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                echo 'Run cucumber runner and produce junit xml'
+                // Windows: use bat and quote params
+                bat '"%MAVEN_HOME%\\bin\\mvn" -B -U "-Dtest=RunCucumberTest" "-Dcucumber.plugin=pretty,summary,junit:target/cucumber-junit.xml" test'
+                echo 'Listing target folder for debugging'
+                bat 'dir target'
+                bat 'if exist target\\cucumber-junit.xml (echo cucumber xml exists) else (echo NO cucumber xml)'
+            }
+            post {
+                always {
+                    // publish cucumber-junit.xml + any surefire xmls; do not allow empty now
+                    junit testResults: 'target/cucumber-junit.xml, target/surefire-reports/*.xml', allowEmptyResults: false
+                }
+            }
+        }
+
+        stage('Package') {
+            steps {
+                echo 'Package'
+                bat '"%MAVEN_HOME%\\bin\\mvn" -B -DskipTests package'
+                archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+            }
+        }
+
+        stage('Deploy (simulated)') {
+            steps {
+                echo 'Deploy placeholder (Day 10)'
+            }
+        }
     }
 
-    stage('Package') {
-      when {
-        expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' }
-      }
-      steps {
-        echo 'Packaging JAR...'
-        bat 'mvn -B -DskipTests package'
-        archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
-      }
+    post {
+        success { echo '✅ Build SUCCESS' }
+        failure { echo '❌ Build FAILED' }
     }
-
-    stage('Deploy (simulated)') {
-      steps {
-        echo 'Deploy placeholder (Day 10: real deploy to Linux VM)'
-      }
-    }
-  }
-
-  post {
-    success { echo '✅ Build SUCCESS' }
-    unstable { echo '⚠️ Build UNSTABLE (tests had warnings)' }
-    failure { echo '❌ Build FAILED'  }
-  }
 }
