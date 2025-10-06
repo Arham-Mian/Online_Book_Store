@@ -14,7 +14,7 @@ pipeline {
     stage('Checkout') {
       steps {
         echo 'Cloning repository...'
-        git branch: 'main', url: 'https://github.com/Arham-Mian/Online_Book_Store.git'
+        git branch: 'main', url: 'https://github.com/<YOUR_USERNAME>/Online_Book_Store.git'
       }
     }
 
@@ -28,16 +28,26 @@ pipeline {
     stage('Test') {
       steps {
         echo 'Running tests...'
-        bat 'mvn -B test'
+        bat 'mvn -B -U test'
+        echo '== Listing target directory =='
+        bat 'dir target'
+        echo '== Listing surefire-reports (if any) =='
+        bat 'if exist target\\surefire-reports (dir target\\surefire-reports) else (echo No surefire-reports folder)'
+        echo '== Show cucumber-junit.xml (if created) =='
+        bat 'if exist target\\cucumber-junit.xml (type target\\cucumber-junit.xml) else (echo No cucumber-junit.xml)'
       }
       post {
         always {
-          junit 'target/surefire-reports/*.xml'
+          // publish both surefire XMLs and cucumber xml; allowEmptyResults true while debugging
+          junit testResults: 'target/surefire-reports/*.xml, target/cucumber-junit.xml', allowEmptyResults: true
         }
       }
     }
 
     stage('Package') {
+      when {
+        expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' }
+      }
       steps {
         echo 'Packaging JAR...'
         bat 'mvn -B -DskipTests package'
@@ -47,13 +57,14 @@ pipeline {
 
     stage('Deploy (simulated)') {
       steps {
-        echo 'Deploy step placeholder (Day 10: real deploy to Linux VM)'
+        echo 'Deploy placeholder (Day 10: real deploy to Linux VM)'
       }
     }
   }
 
   post {
     success { echo '✅ Build SUCCESS' }
-    failure { echo '❌ Build FAILED' }
+    unstable { echo '⚠️ Build UNSTABLE (tests had warnings)' }
+    failure { echo '❌ Build FAILED'  }
   }
 }
