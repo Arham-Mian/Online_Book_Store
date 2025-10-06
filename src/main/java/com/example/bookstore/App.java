@@ -7,6 +7,7 @@ import com.example.bookstore.model.Recommendation;
 import com.example.bookstore.service.BookService;
 import com.example.bookstore.service.CheckoutService;
 import com.example.bookstore.service.RecommendationsService;
+import com.example.bookstore.model.BrowsingHistory;
 
 import java.util.List;
 import java.util.Map;
@@ -17,6 +18,7 @@ public class App {
     private static final BookService bookService = new BookService();
     private static final CheckoutService checkoutService = new CheckoutService();
     private static final RecommendationsService recService = new RecommendationsService();
+    private static final BrowsingHistory browsingHistory = new BrowsingHistory();
 
     private static final BookDao bookDao = new BookDao();
     private static final Cart cart = new Cart();
@@ -42,9 +44,10 @@ public class App {
                 System.out.println("4. View Cart");
                 System.out.println("5. Checkout");
                 System.out.println("6. Show Recommendations");
-                System.out.println("7. Exit");
+                System.out.println("7. View Browsing History");
+                System.out.println("8. Exit");
                 System.out.println("-------------------------------");
-                System.out.print("Enter choice (1-7): ");
+                System.out.print("Enter choice (1-8): ");
 
                 String choice = sc.nextLine().trim();
                 switch (choice) {
@@ -64,10 +67,12 @@ public class App {
                     case "4" -> printCart();
                     case "5" -> checkoutFlow();
                     case "6" -> recommendationsFlow(currentUser);
-                    case "7" -> {
+                    case "7" -> browsingHistoryFlow();
+                    case "8" -> {
                         System.out.println("Goodbye!");
                         return;
                     }
+
                     default -> System.out.println("Invalid choice. Try again.");
                 }
                 System.out.println();
@@ -98,6 +103,19 @@ public class App {
             System.out.println("Added to cart: " + b.getTitle() + " x" + qty);
         } catch (NumberFormatException e) {
             System.out.println("Invalid number.");
+        }
+    }
+
+    private static void browsingHistoryFlow() {
+        if (browsingHistory.isEmpty()) {
+            System.out.println("No recently viewed books yet.");
+            return;
+        }
+        System.out.println("Your Recently Browsed Books:");
+        int i = 1;
+        for (Book b : browsingHistory.getHistory()) {
+            System.out.printf("%d. %s — %s — ₹%s%n",
+                    i++, b.getTitle(), b.getAuthor(), b.getPrice());
         }
     }
 
@@ -154,5 +172,26 @@ public class App {
                     b.getId(), b.getTitle(), b.getAuthor(), b.getPrice(), b.getStock());
         }
         System.out.println("Tip: Use option 3 to add by Book ID.");
+        System.out.println("Enter Book ID to view details or press Enter to skip:");
+        Scanner sc = new Scanner(System.in);
+        String input = sc.nextLine().trim();
+        if (!input.isEmpty()) {
+            try {
+                long id = Long.parseLong(input);
+                Book selected = books.stream()
+                        .filter(b -> b.getId() == id)
+                        .findFirst()
+                        .orElse(null);
+                if (selected != null) {
+                    browsingHistory.add(selected);
+                    System.out.println("Viewed: " + selected.getTitle());
+                } else {
+                    System.out.println("Invalid Book ID.");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input.");
+            }
+        }
+
     }
 }
