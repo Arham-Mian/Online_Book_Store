@@ -3,8 +3,10 @@ package com.example.bookstore;
 import com.example.bookstore.dao.BookDao;
 import com.example.bookstore.model.Book;
 import com.example.bookstore.model.Cart;
+import com.example.bookstore.model.Recommendation;
 import com.example.bookstore.service.BookService;
 import com.example.bookstore.service.CheckoutService;
+import com.example.bookstore.service.RecommendationsService;
 
 import java.util.List;
 import java.util.Map;
@@ -14,13 +16,20 @@ public class App {
 
     private static final BookService bookService = new BookService();
     private static final CheckoutService checkoutService = new CheckoutService();
+    private static final RecommendationsService recService = new RecommendationsService();
+
     private static final BookDao bookDao = new BookDao();
     private static final Cart cart = new Cart();
 
     public static void main(String[] args) {
-        // bootstrap: books + orders tables & seed
-        bookService.init();
-        checkoutService.init();
+        // bootstrap: books + orders + recommendations
+        bookService.init();         // creates books table + seeds defaults
+        checkoutService.init();     // creates orders & order_items tables
+        recService.init();          // creates RecommendedBooks table (DynamoDB)
+
+        // demo current user for recommendations
+        final String currentUser = "user001";
+        recService.seedUser(currentUser);  // one-time seed (safe if repeated)
 
         try (Scanner sc = new Scanner(System.in)) {
             while (true) {
@@ -32,9 +41,10 @@ public class App {
                 System.out.println("3. Add to Cart (by Book ID)");
                 System.out.println("4. View Cart");
                 System.out.println("5. Checkout");
-                System.out.println("6. Exit");
+                System.out.println("6. Show Recommendations");
+                System.out.println("7. Exit");
                 System.out.println("-------------------------------");
-                System.out.print("Enter choice (1-6): ");
+                System.out.print("Enter choice (1-7): ");
 
                 String choice = sc.nextLine().trim();
                 switch (choice) {
@@ -53,7 +63,8 @@ public class App {
                     case "3" -> addToCartFlow(sc);
                     case "4" -> printCart();
                     case "5" -> checkoutFlow();
-                    case "6" -> {
+                    case "6" -> recommendationsFlow(currentUser);
+                    case "7" -> {
                         System.out.println("Goodbye!");
                         return;
                     }
@@ -116,6 +127,20 @@ public class App {
         } catch (Exception e) {
             System.out.println("Checkout failed: " + e.getMessage());
         }
+    }
+
+    private static void recommendationsFlow(String userId) {
+        var recs = recService.top5(userId);
+        if (recs.isEmpty()) {
+            System.out.println("No recommendations found.");
+            return;
+        }
+        System.out.println("Top 5 for " + userId + ":");
+        for (Recommendation r : recs) {
+            System.out.printf("• #%d %s — %s (bookId: %d)%n",
+                    r.getRank(), r.getTitle(), r.getAuthor(), r.getBookId());
+        }
+        System.out.println("Tip: Use option 3 to add by Book ID.");
     }
 
     private static void printResults(List<Book> books) {
