@@ -2,28 +2,25 @@ pipeline {
   agent any
 
   tools {
-    // EXACT names jaisa tumne "Global Tool Configuration" me set kiya:
-    jdk   'jdk21'      // <- apne JDK ka naam yahi ho
-    maven 'maven'      // <- apne Maven tool ka naam
+    jdk   'JDK 21'        // <-- EXACT name from Manage Jenkins -> Tools
+    maven 'Maven 3.9.11'  // <-- EXACT name from Manage Jenkins -> Tools
   }
 
   options {
     timestamps()
-    ansiColor('xterm')
   }
 
   stages {
     stage('Checkout') {
       steps {
         echo 'Cloning repository...'
-        // 👉 yahan apna GitHub URL daalo
         git branch: 'main', url: 'https://github.com/Arham-Mian/Online_Book_Store.git'
       }
     }
 
     stage('Build') {
       steps {
-        echo 'Building...'
+        echo 'Building project (compile)...'
         bat 'mvn -B -U clean compile'
       }
     }
@@ -50,13 +47,13 @@ pipeline {
 
     stage('Deploy (simulated)') {
       steps {
-        echo 'Deploy step placeholder – Day 10 me actual VM deploy karenge.'
+        echo 'Deploy step placeholder (Day 10: real deploy to Linux VM)'
       }
     }
   }
 
   post {
     success { echo '✅ Build SUCCESS' }
-    failure { echo '❌ Build FAILED'  }
+    failure { echo '❌ Build FAILED' }
   }
 }
