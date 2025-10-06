@@ -10,6 +10,46 @@ import java.util.List;
 
 public class BookDao {
 
+    public Book findById(long id) {
+        String sql = "SELECT id,title,author,isbn,price,stock FROM books WHERE id = ?";
+        try (Connection con = DB.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setLong(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Book b = new Book();
+                    b.setId(rs.getLong("id"));
+                    b.setTitle(rs.getString("title"));
+                    b.setAuthor(rs.getString("author"));
+                    b.setIsbn(rs.getString("isbn"));
+                    b.setPrice(rs.getBigDecimal("price"));
+                    b.setStock(rs.getInt("stock"));
+                    return b;
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("findById failed", e);
+        }
+        return null;
+    }
+
+    public boolean hasSufficientStock(long bookId, int qty) {
+        String sql = "SELECT stock FROM books WHERE id = ?";
+        try (Connection con = DB.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setLong(1, bookId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("stock") >= qty;
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("stock check failed", e);
+        }
+        return false;
+    }
+
+
     /** ✅ Step 1: Create table (if missing) */
     public void createTableIfNotExists() {
         String sql = """
