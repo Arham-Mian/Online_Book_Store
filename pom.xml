@@ -39,19 +39,7 @@
         </dependency>
 
         <!-- ✅ Cucumber BDD + JUnit Platform Engine -->
-        <dependency>
-            <groupId>io.cucumber</groupId>
-            <artifactId>cucumber-java</artifactId>
-            <version>7.14.0</version>
-            <scope>test</scope>
-        </dependency>
 
-        <dependency>
-            <groupId>io.cucumber</groupId>
-            <artifactId>cucumber-junit-platform-engine</artifactId>
-            <version>7.14.0</version>
-            <scope>test</scope>
-        </dependency>
 
         <!-- ✅ JUnit Jupiter API (unit test support) -->
         <dependency>
@@ -95,13 +83,9 @@
                     <useModulePath>false</useModulePath>
                     <includes>
                         <include>**/*Test.java</include>
+                        <include>**/*Tests.java</include>
                         <include>**/*IT.java</include>
-                        <include>**/*Runner.java</include>
                     </includes>
-                    <systemPropertyVariables>
-                        <cucumber.execution.parallel.enabled>false</cucumber.execution.parallel.enabled>
-                        <cucumber.plugin>pretty, summary</cucumber.plugin>
-                    </systemPropertyVariables>
                 </configuration>
             </plugin>
 
