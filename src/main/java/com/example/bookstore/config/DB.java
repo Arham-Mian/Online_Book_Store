@@ -4,35 +4,60 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+/**
+ * Handles all database connections for the Online Bookstore.
+ * Uses MySQL JDBC driver with support for environment overrides.
+ *
+ * Priority:
+ *   1. Environment variables (DB_URL, DB_USER, DB_PASS)
+ *   2. Default hardcoded values (for local development)
+ */
 public class DB {
 
-    // Explicitly load MySQL JDBC driver (helps with quirky classpaths)
     static {
         try {
+            // ✅ Explicitly load MySQL JDBC Driver
             Class.forName("com.mysql.cj.jdbc.Driver");
         } catch (ClassNotFoundException e) {
-            throw new RuntimeException("MySQL driver not found on classpath. Did Maven import the dependency?", e);
+            throw new RuntimeException("❌ MySQL driver not found! Check Maven dependency or classpath.", e);
         }
     }
 
-    // ---------- Configuration ----------
-    // You can override these via environment variables: DB_URL, DB_USER, DB_PASS
+    // ---------- Default Configuration (Local Dev) ----------
     private static final String DEFAULT_URL  =
-            "jdbc:mysql://localhost:3306/bookstore?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
-    private static final String DEFAULT_USER = "bookapp";      // <-- recommended app user
-    private static final String DEFAULT_PASS = "Book@1234";    // <-- set the same as you created above
+            "jdbc:mysql://localhost:3306/bookstore_fresh?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
+    private static final String DEFAULT_USER = "bookapp";       // ✅ app-specific user (not root)
+    private static final String DEFAULT_PASS = "BookApp@123";   // ✅ your chosen app password
+    // -------------------------------------------------------
 
-    private static final String URL  = valueOrEnv("DB_URL",  DEFAULT_URL);
-    private static final String USER = valueOrEnv("DB_USER", DEFAULT_USER);
-    private static final String PASS = valueOrEnv("DB_PASS", DEFAULT_PASS);
-    // -----------------------------------
+    // Allow overriding via environment variables (for Jenkins / cloud / prod)
+    private static final String URL  = getEnvOrDefault("DB_URL",  DEFAULT_URL);
+    private static final String USER = getEnvOrDefault("DB_USER", DEFAULT_USER);
+    private static final String PASS = getEnvOrDefault("DB_PASS", DEFAULT_PASS);
 
+    /**
+     * Establishes a new MySQL connection.
+     *
+     * @return Connection object to interact with MySQL DB
+     * @throws SQLException if database is unreachable or credentials invalid
+     */
     public static Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(URL, USER, PASS);
+        try {
+            Connection conn = DriverManager.getConnection(URL, USER, PASS);
+            System.out.println("✅ Connected to MySQL successfully as user: " + USER);
+            return conn;
+        } catch (SQLException e) {
+            System.err.println("❌ Failed to connect to database. Check credentials and server.");
+            System.err.println("URL: " + URL);
+            throw e;
+        }
     }
 
-    private static String valueOrEnv(String envKey, String fallback) {
-        String v = System.getenv(envKey);
-        return (v == null || v.isBlank()) ? fallback : v;
+    /**
+     * Helper method to read environment variable (if exists) else use fallback.
+     */
+    private static String getEnvOrDefault(String key, String fallback) {
+        String value = System.getenv(key);
+        return (value != null && !value.isBlank()) ? value : fallback;
     }
 }

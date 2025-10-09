@@ -1,3 +1,39 @@
-# Default ignored files
-/shelf/
-/workspace.xml
+# Maven target folder
+/target/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+out/
+
+# Logs
+*.log
+logs/
+error.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+
+# Environment variables and credentials
+.env
+*.properties
+
+# AWS/DynamoDB local
+.dynamodb/
+DynamoDBLocal_lib/
+*.db
+
+# Reports
+*.dump
+*.dumpstream
+*.junit.xml
+
+# Backup or old jars
+*.jar.old
+*.class
