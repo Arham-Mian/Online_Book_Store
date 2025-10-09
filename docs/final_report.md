@@ -7,7 +7,7 @@
 
 ## 👨‍💻 Developer
 **Name:** Arham Mian  
-**Mentor / Trainer:** [Add trainer’s name here]  
+**Mentor / Trainer:** Meher Ma'am 
 **Duration:** 10 Days  
 **Tools & Technologies:** Java, MySQL, DynamoDB, Jenkins, Maven, IntelliJ IDEA
 
