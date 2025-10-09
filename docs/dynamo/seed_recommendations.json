@@ -1,0 +1,36 @@
+{
+  "RecommendedBooks": [
+    {
+      "PutRequest": {
+        "Item": {
+          "user": { "S": "Arham" },
+          "recommendations": {
+            "L": [
+              { "S": "Effective Java" },
+              { "S": "Clean Architecture" },
+              { "S": "Refactoring" },
+              { "S": "Domain-Driven Design" },
+              { "S": "Head First Design Patterns" }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "user": { "S": "Guest" },
+          "recommendations": {
+            "L": [
+              { "S": "The Pragmatic Programmer" },
+              { "S": "Clean Code" },
+              { "S": "Java Concurrency in Practice" },
+              { "S": "Test-Driven Development" },
+              { "S": "Microservices Patterns" }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}
