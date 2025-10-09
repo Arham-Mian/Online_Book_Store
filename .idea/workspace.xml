@@ -5,12 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="26f21ad7-88de-4d8c-a225-30f6ed850712" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/sql/01_schema.sql" beforeDir="false" afterPath="$PROJECT_DIR$/docs/sql/01_schema.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/sql/02_seed.sql" beforeDir="false" afterPath="$PROJECT_DIR$/docs/sql/02_seed.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/bookstore/config/DB.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/bookstore/config/DB.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/bookstore/App.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/bookstore/App.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

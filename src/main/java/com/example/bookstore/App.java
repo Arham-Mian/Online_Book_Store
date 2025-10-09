@@ -35,9 +35,9 @@ public class App {
 
         try (Scanner sc = new Scanner(System.in)) {
             while (true) {
-                System.out.println("===============================");
-                System.out.println("   Welcome to Online Bookstore ");
-                System.out.println("===============================");
+                System.out.println("================================");
+                System.out.println("   Welcome to Online Bookstore  ");
+                System.out.println("================================");
                 System.out.println("1. Search by Title");
                 System.out.println("2. Search by Author");
                 System.out.println("3. Add to Cart (by Book ID)");
@@ -46,7 +46,7 @@ public class App {
                 System.out.println("6. Show Recommendations");
                 System.out.println("7. View Browsing History");
                 System.out.println("8. Exit");
-                System.out.println("-------------------------------");
+                System.out.println("--------------------------------");
                 System.out.print("Enter choice (1-8): ");
 
                 String choice = sc.nextLine().trim();
@@ -72,7 +72,6 @@ public class App {
                         System.out.println("Goodbye!");
                         return;
                     }
-
                     default -> System.out.println("Invalid choice. Try again.");
                 }
                 System.out.println();
@@ -114,7 +113,7 @@ public class App {
         System.out.println("Your Recently Browsed Books:");
         int i = 1;
         for (Book b : browsingHistory.getHistory()) {
-            System.out.printf("%d. %s — %s — ₹%s%n",
+            System.out.printf("%d. %s - %s - Rs.%s%n",
                     i++, b.getTitle(), b.getAuthor(), b.getPrice());
         }
     }
@@ -128,10 +127,10 @@ public class App {
         for (Map.Entry<Book, Integer> e : cart.getItems().entrySet()) {
             Book b = e.getKey();
             int qty = e.getValue();
-            System.out.printf("• #%d %s — %s — ₹%s  x%d%n",
+            System.out.printf("- #%d %s - %s - Rs.%s x%d%n",
                     b.getId(), b.getTitle(), b.getAuthor(), b.getPrice(), qty);
         }
-        System.out.println("Total: ₹" + cart.calculateTotal());
+        System.out.println("Total: Rs." + cart.calculateTotal());
     }
 
     private static void checkoutFlow() {
@@ -155,7 +154,7 @@ public class App {
         }
         System.out.println("Top 5 for " + userId + ":");
         for (Recommendation r : recs) {
-            System.out.printf("• #%d %s — %s (bookId: %d)%n",
+            System.out.printf("- #%d %s - %s (bookId: %d)%n",
                     r.getRank(), r.getTitle(), r.getAuthor(), r.getBookId());
         }
         System.out.println("Tip: Use option 3 to add by Book ID.");
@@ -168,7 +167,7 @@ public class App {
         }
         System.out.println("Results:");
         for (Book b : books) {
-            System.out.printf("• #%d %s — %s — ₹%s (stock: %d)%n",
+            System.out.printf("- #%d %s - %s - Rs.%s (stock: %d)%n",
                     b.getId(), b.getTitle(), b.getAuthor(), b.getPrice(), b.getStock());
         }
         System.out.println("Tip: Use option 3 to add by Book ID.");
@@ -192,6 +191,5 @@ public class App {
                 System.out.println("Invalid input.");
             }
         }
-
     }
 }
