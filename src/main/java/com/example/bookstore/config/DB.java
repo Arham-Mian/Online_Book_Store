@@ -5,59 +5,65 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 /**
- * Handles all database connections for the Online Bookstore.
- * Uses MySQL JDBC driver with support for environment overrides.
- *
- * Priority:
- *   1. Environment variables (DB_URL, DB_USER, DB_PASS)
- *   2. Default hardcoded values (for local development)
+ * Central DB config.
+ * Resolution order for credentials:
+ *   1) JVM system properties:  -Ddb.url=..  -Ddb.user=..  -Ddb.pass=..
+ *   2) Environment variables:  DB_URL / DB_USER / DB_PASS
+ *   3) Local defaults (good for dev)
  */
-public class DB {
+public final class DB {
+
+    private DB() {}
 
     static {
         try {
-            // ✅ Explicitly load MySQL JDBC Driver
             Class.forName("com.mysql.cj.jdbc.Driver");
         } catch (ClassNotFoundException e) {
-            throw new RuntimeException("❌ MySQL driver not found! Check Maven dependency or classpath.", e);
+            throw new RuntimeException("MySQL driver not found on the classpath.", e);
         }
     }
 
-    // ---------- Default Configuration (Local Dev) ----------
-    private static final String DEFAULT_URL  =
-            "jdbc:mysql://localhost:3306/bookstore_fresh?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
-    private static final String DEFAULT_USER = "bookapp";       // ✅ app-specific user (not root)
-    private static final String DEFAULT_PASS = "BookApp@123";   // ✅ your chosen app password
-    // -------------------------------------------------------
+    // --- Local defaults (DEV) ---
+    private static final String DEFAULT_URL =
+            "jdbc:mysql://localhost:3306/bookstore?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
+    private static final String DEFAULT_USER = "bookapp";
+    private static final String DEFAULT_PASS = "BookApp@123";
 
-    // Allow overriding via environment variables (for Jenkins / cloud / prod)
-    private static final String URL  = getEnvOrDefault("DB_URL",  DEFAULT_URL);
-    private static final String USER = getEnvOrDefault("DB_USER", DEFAULT_USER);
-    private static final String PASS = getEnvOrDefault("DB_PASS", DEFAULT_PASS);
+    // Resolve with priority: system property -> env var -> default
+    private static String resolve(String propKey, String envKey, String defVal) {
+        String v = System.getProperty(propKey);
+        if (v != null && !v.isBlank()) return v.trim();
+        v = System.getenv(envKey);
+        if (v != null && !v.isBlank()) return v.trim();
+        return defVal;
+    }
 
-    /**
-     * Establishes a new MySQL connection.
-     *
-     * @return Connection object to interact with MySQL DB
-     * @throws SQLException if database is unreachable or credentials invalid
-     */
+    private static final String URL  = resolve("db.url",  "DB_URL",  DEFAULT_URL);
+    private static final String USER = resolve("db.user", "DB_USER", DEFAULT_USER);
+    private static final String PASS = resolve("db.pass", "DB_PASS", DEFAULT_PASS);
+
     public static Connection getConnection() throws SQLException {
         try {
-            Connection conn = DriverManager.getConnection(URL, USER, PASS);
-            System.out.println("✅ Connected to MySQL successfully as user: " + USER);
-            return conn;
+            Connection c = DriverManager.getConnection(URL, USER, PASS);
+            System.out.println("✅ DB connected as '" + USER + "'");
+            System.out.println("✅ DB URL in use: " + URL + sourceNote());
+            // Optional: print active catalog (schema) once per JVM
+            try {
+                String catalog = c.getCatalog();
+                System.out.println("✅ Active schema (catalog): " + catalog);
+            } catch (SQLException ignored) {}
+            return c;
         } catch (SQLException e) {
-            System.err.println("❌ Failed to connect to database. Check credentials and server.");
-            System.err.println("URL: " + URL);
+            System.err.println("❌ DB connect failed. URL in use: " + URL + sourceNote());
             throw e;
         }
     }
 
-    /**
-     * Helper method to read environment variable (if exists) else use fallback.
-     */
-    private static String getEnvOrDefault(String key, String fallback) {
-        String value = System.getenv(key);
-        return (value != null && !value.isBlank()) ? value : fallback;
+    private static String sourceNote() {
+        // Helpful hint about where the URL came from
+        String src = (System.getProperty("db.url") != null) ? " (from -Ddb.url)"
+                : (System.getenv("DB_URL") != null) ? " (from env DB_URL)"
+                : " (default)";
+        return src;
     }
 }
