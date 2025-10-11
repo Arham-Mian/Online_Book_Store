@@ -161,3 +161,102 @@ VALUES
 ('Clean Code', 'Robert C. Martin', 450.00, 10),
 ('Design Patterns', 'Erich Gamma', 550.00, 8),
 ('Refactoring', 'Martin Fowler', 600.00, 5);
+
+
+---
+
+## 🧩6. DynamoDB (NoSQL) Setup
+
+In addition to MySQL, the application also uses **Amazon DynamoDB (local instance)**  
+to store and fetch personalized book recommendations for each user.
+
+---
+
+### 1️⃣ Install / Run DynamoDB Local
+
+You can use AWS’s official DynamoDB Local JAR or Docker image.
+
+**Option A — Using AWS JAR (Recommended for local dev):**
+```bash
+mkdir dynamodb_local
+cd dynamodb_local
+wget https://s3.us-west-2.amazonaws.com/dynamodb-local/dynamodb_local_latest.zip
+unzip dynamodb_local_latest.zip
+java -Djava.library.path=./DynamoDBLocal_lib -jar DynamoDBLocal.jar -sharedDb
+```
+
+**Option B — Using Docker (simpler):**
+```bash
+docker run -d -p 8000:8000 amazon/dynamodb-local
+```
+
+✅ This runs DynamoDB locally at  
+**http://localhost:8000**
+
+---
+
+### 2️⃣ Verify Connection
+
+The app’s config file [`Dynamo.java`](src/main/java/com/example/bookstore/config/Dynamo.java)  
+already points to this local endpoint:
+
+```java
+private static final String DEFAULT_ENDPOINT = "http://localhost:8000";
+```
+
+So, no extra configuration is needed — the app connects automatically on startup.
+
+---
+
+### 3️⃣ Seed Demo Recommendations
+
+To insert sample recommendation data (stored in DynamoDB),  
+you can use the JSON file:
+[`docs/dynamo/seed_recommendations.json`](docs/dynamo/seed_recommendations.json)
+
+Load it manually using the AWS CLI:
+
+```bash
+aws dynamodb batch-write-item \
+  --request-items file://docs/dynamo/seed_recommendations.json \
+  --endpoint-url http://localhost:8000
+```
+
+This will create example records like:
+- 👤 **Arham** → “Effective Java”, “Clean Architecture”, etc.
+- 👤 **Guest** → “The Pragmatic Programmer”, “Clean Code”, etc.
+
+---
+
+### 4️⃣ Table Schema Used
+
+The table name is **`RecommendedBooks`**, created automatically  
+by the `RecommendationsDao` class at runtime.
+
+| Attribute | Type | Description |
+|------------|------|-------------|
+| `userId`   | String (HASH key) | Unique user identifier |
+| `rank`     | Number (RANGE key) | Ranking order (1–5) |
+| `bookId`   | Number | Linked Book ID (from MySQL `books` table) |
+| `title`    | String | Book title |
+| `author`   | String | Book author |
+
+---
+
+### ✅ Output Example (from App.java)
+
+When you select “Show Recommendations” in the console, you’ll see something like:
+
+```
+Top 5 for user001:
+- #1 Clean Code - Robert C. Martin (bookId: 1)
+- #2 Design Patterns - Erich Gamma (bookId: 2)
+- #3 Harry Potter and the Philosopher's Stone - J.K. Rowling (bookId: 3)
+```
+
+---
+
+💡 *Tip:* DynamoDB Local doesn’t require an AWS account or internet connection —  
+it’s completely offline and resets data when restarted (unless you use `-sharedDb` mode).
+
+---
