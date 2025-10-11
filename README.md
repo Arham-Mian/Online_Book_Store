@@ -256,7 +256,3 @@ Top 5 for user001:
 
 ---
 
-💡 *Tip:* DynamoDB Local doesn’t require an AWS account or internet connection —  
-it’s completely offline and resets data when restarted (unless you use `-sharedDb` mode).
-
----
