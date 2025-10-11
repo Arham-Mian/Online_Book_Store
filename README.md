@@ -51,7 +51,7 @@ covering everything from software design diagrams to database integration and au
 
 
 
-<h2>## 📁 3. Project Structure</h2>
+<h2>📁 3. Project Structure</h2>
 
 <pre>
 Online_Book_Store/
