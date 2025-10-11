@@ -1384,3 +1384,225 @@ without any external frameworks like Cucumber.
 View junit-platform.properties on GitHub
 </a>
 </p>
+
+
+<hr/>
+
+<h2 id="root-configs">🧰 8. ROOT CONFIG & DEVOPS FILES</h2>
+
+<p>
+This section covers the three project-level files that control what gets committed to Git,
+how the CI/CD pipeline runs, and how the project is built and packaged.
+</p>
+
+<!-- ====================== .gitignore ====================== -->
+
+<h3 id="gitignore">🧹 8.1 <code>.gitignore</code> — Keep the repo clean</h3>
+
+<p>
+The <code>.gitignore</code> file prevents IDE clutter, build outputs, secrets, and temporary files from entering Git.  
+It keeps the repository clean and portable across machines.
+</p>
+
+<p><b>Highlights (grouped by purpose):</b></p>
+<ul>
+  <li><b>Maven outputs:</b> ignore <code>/target/</code> everywhere; allow wrapper JAR (<code>!.mvn/wrapper/maven-wrapper.jar</code>)</li>
+  <li><b>IDE files:</b> IntelliJ (<code>.idea/, *.iml, *.ipr, *.iws, out/</code>), Eclipse/NetBeans/VS Code folders</li>
+  <li><b>OS trash:</b> <code>.DS_Store</code> (macOS), <code>Thumbs.db</code> (Windows)</li>
+  <li><b>Logs & temp:</b> <code>*.log</code>, <code>logs/</code>, <code>*.tmp</code>, <code>*.bak</code>, <code>*.swp</code></li>
+  <li><b>Secrets & env:</b> <code>.env</code>, <code>*.properties</code> (never commit credentials)</li>
+  <li><b>DynamoDB local:</b> <code>.dynamodb/</code>, <code>DynamoDBLocal_lib/</code>, <code>*.db</code></li>
+  <li><b>Reports/dumps:</b> <code>*.dump</code>, <code>*.dumpstream</code>, <code>*.junit.xml</code></li>
+  <li><b>JARs & bytecode:</b> <code>*.jar</code>, <code>*.class</code> (but keep Maven wrapper jar)</li>
+  <li><b>Docs exception:</b> explicitly ignore <code>docs/design/plantuml.jar</code> to avoid committing binaries</li>
+</ul>
+
+<details>
+  <summary><b>Excerpt</b> (short)</summary>
+  <pre><code># Maven
+/target/
+!.mvn/wrapper/maven-wrapper.jar
+
+# IntelliJ
+.idea/
+*.iml
+out/
+
+# Logs & temp
+*.log
+logs/
+*.tmp
+
+# Env
+.env
+*.properties
+
+# DynamoDB Local
+.dynamodb/
+DynamoDBLocal_lib/
+*.db
+</code></pre>
+</details>
+
+<p>
+🔗 <b>GitHub Source:</b>
+<a href="https://github.com/Arham-Mian/Online_Book_Store/blob/main/.gitignore">.gitignore</a>
+</p>
+
+<hr/>
+
+<!-- ====================== Jenkinsfile ====================== -->
+
+<h3 id="jenkinsfile">🚀 8.2 <code>Jenkinsfile</code> — CI/CD Pipeline</h3>
+
+<p>
+The pipeline automates build, tests, packaging, and a simulated deploy.  
+It’s defined as code using a declarative <code>Jenkinsfile</code> so every run is repeatable.
+</p>
+
+<p><b>Key settings:</b></p>
+<ul>
+  <li><b>Tools:</b> Uses Jenkins-configured <code>JDK 21</code> & <code>Maven 3.9.11</code> (names must match Global Tool Config)</li>
+  <li><b>Options:</b> <code>timestamps()</code> for better logs</li>
+  <li><b>Environment:</b> <code>PROJECT_NAME</code>, <code>BRANCH_NAME</code> variables</li>
+</ul>
+
+<p><b>Stages overview:</b></p>
+<ol>
+  <li><b>Checkout</b> – Pulls code from GitHub (branch: <code>main</code>)</li>
+  <li><b>Build</b> – <code>mvn clean compile</code></li>
+  <li><b>Test</b> – <code>mvn test</code> + publishes Surefire JUnit XML reports</li>
+  <li><b>Package</b> – <code>mvn package -DskipTests</code>, archives <code>target/*.jar</code></li>
+  <li><b>Deploy (Simulated)</b> – Placeholder messages (future: SCP/Docker/K8s)</li>
+</ol>
+
+<details>
+  <summary><b>Excerpt</b> (core)</summary>
+  <pre><code>pipeline {
+  agent any
+  tools { jdk 'JDK 21'; maven 'Maven 3.9.11' }
+  stages {
+    stage('Build') { steps { bat '"%MAVEN_HOME%\\bin\\mvn" -B -U clean compile' } }
+    stage('Test')  {
+      steps { bat '"%MAVEN_HOME%\\bin\\mvn" -B -U test' }
+      post { always { junit 'target/surefire-reports/*.xml' } }
+    }
+    stage('Package') {
+      steps { bat '"%MAVEN_HOME%\\bin\\mvn" -B -DskipTests package' }
+      post { success { archiveArtifacts 'target/*.jar' } }
+    }
+  }
+}
+</code></pre>
+</details>
+
+<p>
+🔗 <b>GitHub Source:</b>
+<a href="https://github.com/Arham-Mian/Online_Book_Store/blob/main/Jenkinsfile">Jenkinsfile</a>
+</p>
+
+<hr/>
+
+<!-- ====================== pom.xml ====================== -->
+
+<h3 id="pom">🧱 8.3 <code>pom.xml</code> — Build & Dependencies</h3>
+
+<p>
+The Maven POM declares project metadata, dependencies, and build plugins.  
+It compiles with Java 17, runs JUnit 5 tests, and produces a single executable JAR via the Shade plugin.
+</p>
+
+<p><b>Project properties:</b></p>
+<ul>
+  <li><code>maven.compiler.source/target</code> = 17</li>
+  <li><code>groupId</code>/<code>artifactId</code>/<code>version</code> = <code>com.example:bookstore:1.0.0</code></li>
+  <li><code>finalName</code> → <code>bookstore-1.0.0.jar</code></li>
+</ul>
+
+<p><b>Dependencies:</b></p>
+<ul>
+  <li><b>MySQL JDBC</b> — <code>mysql-connector-j</code></li>
+  <li><b>AWS SDK v2 (DynamoDB)</b> — <code>software.amazon.awssdk:dynamodb</code> + <code>url-connection-client</code></li>
+  <li><b>SLF4J API</b> — logging façade</li>
+  <li><b>JUnit Jupiter</b> — unit testing (scope: <code>test</code>)</li>
+  <li><i>Optional (legacy)</i> — Cucumber artifacts are still listed; can be removed if not used</li>
+</ul>
+
+<p><b>Build plugins:</b></p>
+<ul>
+  <li><b>maven-compiler-plugin</b> — compiles with Java 17</li>
+  <li><b>maven-surefire-plugin</b> — runs JUnit tests; includes patterns like <code>*Test.java</code></li>
+  <li><b>maven-shade-plugin</b> — creates a single runnable JAR; sets <code>Main-Class = com.example.bookstore.App</code></li>
+</ul>
+
+<details>
+  <summary><b>Key snippet</b> (Shade config)</summary>
+  <pre><code>&lt;plugin&gt;
+  &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+  &lt;artifactId&gt;maven-shade-plugin&lt;/artifactId&gt;
+  &lt;version&gt;3.5.0&lt;/version&gt;
+  &lt;executions&gt;
+    &lt;execution&gt;
+      &lt;phase&gt;package&lt;/phase&gt;
+      &lt;goals&gt;&lt;goal&gt;shade&lt;/goal&gt;&lt;/goals&gt;
+      &lt;configuration&gt;
+        &lt;shadedArtifactAttached&gt;false&lt;/shadedArtifactAttached&gt;
+        &lt;transformers&gt;
+          &lt;transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer"&gt;
+            &lt;mainClass&gt;com.example.bookstore.App&lt;/mainClass&gt;
+          &lt;/transformer&gt;
+        &lt;/transformers&gt;
+      &lt;/configuration&gt;
+    &lt;/execution&gt;
+  &lt;/executions&gt;
+&lt;/plugin&gt;
+</code></pre>
+</details>
+
+<p>
+<b>How it all ties together:</b>  
+<code>pom.xml</code> decides how the code is compiled/tested/packaged → <code>Jenkinsfile</code> automates those Maven steps on every commit → <code>.gitignore</code> ensures only source and config are versioned (no build artifacts or secrets).
+</p>
+
+<p>
+🔗 <b>GitHub Source:</b>
+<a href="https://github.com/Arham-Mian/Online_Book_Store/blob/main/pom.xml">pom.xml</a>
+</p>
+<hr/>
+
+<h2 id="conclusion">✅ 9. CONCLUSION</h2>
+
+<p>
+The <b>Online Book Store</b> project successfully demonstrates the full-stack architecture of a modern Java application.
+It integrates <b>MySQL</b> for persistent storage, <b>DynamoDB</b> for NoSQL recommendations, and follows a clean layered structure
+that separates configuration, model, DAO, service, and presentation logic.
+</p>
+
+<p>
+The application follows industry-standard best practices — using <b>Maven</b> for build automation,
+<b>JUnit</b> for reliable testing, and <b>Jenkins</b> for CI/CD pipeline integration.  
+Its modular, testable, and well-documented design ensures scalability, maintainability, and future web extensibility.
+</p>
+
+<p>
+Overall, this project provides a complete learning experience of how enterprise-grade Java applications are built, tested,
+and deployed efficiently with modern development workflows.
+</p>
+
+<p align="center">
+<b>“Code is read more often than it is written — so make it beautiful and meaningful.”</b><br/>
+— Final Report by <i>Arham Mian</i>
+</p>
+
+<hr/>
+
+<p align="center">
+📦 <b>GitHub Repository:</b>  
+<a href="https://github.com/Arham-Mian/Online_Book_Store" target="_blank">
+https://github.com/Arham-Mian/Online_Book_Store
+</a>
+</p>
+
+<p align="center" style="font-size: 1.1em; margin-top: 20px;">
+ Built with 💖 and ☕ by <b>Arham Mian</b>
+</p>
