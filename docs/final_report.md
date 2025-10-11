@@ -1380,7 +1380,7 @@ without any external frameworks like Cucumber.
 
 <p>
 🔗 <b>GitHub Source:</b><br/>
-<a href="https://github.com/Arham-Mian/Online_Book_Store/blob/main/src/test/resources/recommendation/junit-platform.properties">
+<a href="https://github.com/Arham-Mian/Online_Book_Store/blob/main/src/test/resources/junit-platform.properties">
 View junit-platform.properties on GitHub
 </a>
 </p>
