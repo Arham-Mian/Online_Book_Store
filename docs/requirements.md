@@ -1,5 +1,3 @@
-mkdir -p docs
-cat > docs/requirements.md <<'EOF'
 # Online Bookstore - Requirement Specification
 
 ## 1. Introduction
@@ -68,8 +66,8 @@ The application should be designed in a way that it can later be extended into a
 - **Build Tool:** Maven
 - **Databases:** MySQL (Books, Users, Orders), DynamoDB (Recommendations)
 - **Version Control:** GitHub
-- **Testing Frameworks:** JUnit, Cucumber (BDD)
-- **Deployment:** Linux VM (JAR deployment)
+- **Testing Frameworks:** JUnit (Unit testing)
+- **Deployment:** JAR file deployment
 
 ---
 
@@ -94,4 +92,4 @@ The application should be designed in a way that it can later be extended into a
 - ML-based recommendation system
 
 ---
-EOF
+
