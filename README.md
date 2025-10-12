@@ -18,17 +18,17 @@ This application allows users to:
 This project was developed as part of a **10-day structured SDLC learning journey**,  
 covering everything from software design diagrams to database integration and automation pipelines.
 
-| **Day** | **Topic** | **Summary** |
-|----------|------------|-------------|
-| 🧠 **Day 1** | Requirement Gathering | Defined all functional and non-functional requirements. |
-| 🧱 **Day 2** | OOAD & Design | Designed UML (Class, Use Case, ER) diagrams using PlantUML. |
-| ⚙️ **Day 3** | Environment Setup | Installed Java 17, Maven, MySQL; created IntelliJ project structure. |
-| 🔍 **Day 4** | Book Search | Built `BookService` and DAO for CRUD and search operations. |
-| 🛒 **Day 5** | Cart & Checkout | Implemented `Cart` and `CheckoutService` connected to MySQL. |
-| ☁️ **Day 6** | DynamoDB Integration | Configured AWS SDK to fetch “Recommended Books” from DynamoDB Local. |
-| 🔁 **Day 7** | Data Structures | Added browsing history feature using a LinkedList. |
-| 🧪 **Day 8** | Testing | Replaced Cucumber BDD with JUnit 5 test cases. |
-| 🔧 **Day 9** | Jenkins CI/CD | Automated build, test, and reporting pipeline with Jenkinsfile. |
+| **Day** | **Topic** | **Summary**                                                             |
+|----------|------------|-------------------------------------------------------------------------|
+| 🧠 **Day 1** | Requirement Gathering | Defined all functional and non-functional requirements.                 |
+| 🧱 **Day 2** | OOAD & Design | Designed UML (Class, Use Case, ER) diagrams using PlantUML.             |
+| ⚙️ **Day 3** | Environment Setup | Installed Java 17, Maven, MySQL; created IntelliJ project structure.    |
+| 🔍 **Day 4** | Book Search | Built `BookService` and DAO for CRUD and search operations.             |
+| 🛒 **Day 5** | Cart & Checkout | Implemented `Cart` and `CheckoutService` connected to MySQL.            |
+| ☁️ **Day 6** | DynamoDB Integration | Configured AWS SDK to fetch “Recommended Books” from DynamoDB Local.    |
+| 🔁 **Day 7** | Data Structures | Added browsing history feature using a LinkedList.                      |
+| 🧪 **Day 8** | Testing | Builded JUnit 5 test cases.                                             |
+| 🔧 **Day 9** | Jenkins CI/CD | Automated build, test, and reporting pipeline with Jenkinsfile.         |
 | 🚀 **Day 10** | Deployment & Demo | Packaged the app, performed manual testing, and finalized documentation. |
 
 ---
